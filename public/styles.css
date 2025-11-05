@@ -1,0 +1,83 @@
+body { margin: 0; padding: 0; font-family: sans-serif; background: #f4f4f4; }
+
+#login-area {
+    width: 300px;
+    margin: 100px auto;
+    padding: 20px;
+    background: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    text-align: center;
+}
+
+#login-form input, #login-form button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+
+/* --- Estilos del Chat --- */
+#chat-area {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+#welcome-header {
+    background: #3498db;
+    color: white;
+    padding: 10px;
+    margin: 0;
+    text-align: center;
+}
+
+#messages {
+    flex-grow: 1;
+    list-style-type: none;
+    margin: 0;
+    padding: 20px;
+    overflow-y: auto;
+    border-bottom: 1px solid #ccc;
+}
+
+#messages .msg {
+    padding: 5px 0;
+    border-bottom: 1px dotted #eee;
+}
+
+#messages .system-msg {
+    text-align: center;
+    font-size: 0.8em;
+    color: #888;
+    margin: 5px 0;
+}
+
+#chat-form {
+    padding: 10px;
+    display: flex;
+}
+
+#m {
+    flex-grow: 1;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px 0 0 5px;
+}
+
+#chat-form button {
+    background: #2ecc71;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 0 5px 5px 0;
+}
+
+.error {
+    color: red;
+}

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Cliente-Servidor</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    
+    <div id="login-area">
+        <h1>🔑 Inicia Sesión en el Chat</h1>
+        <p>Usa **clienteA/passA** o **clienteB/passB**</p>
+        <form id="login-form">
+            <input id="username" type="text" placeholder="Usuario" required>
+            <input id="password" type="password" placeholder="Contraseña" required>
+            <button type="submit">Entrar al Chat</button>
+            <p id="login-message" class="error"></p>
+        </form>
+    </div>
+
+    <div id="chat-area" style="display: none;">
+        <h1 id="welcome-header">Bienvenido, [Usuario]</h1>
+        <div id="messages">
+            </div>
+        <form id="chat-form">
+            <input id="m" autocomplete="off" placeholder="Escribe tu mensaje..." />
+            <button>Enviar</button>
+        </form>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="client.js"></script>
+</body>
+</html>
