@@ -10,10 +10,24 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 // Configuracion de credenciales usuarios (simulamos base de datos)
-const USERS = {
-    'clienteA': 'passA', // Usuario para la Computadora A
-    'clienteB': 'passB'  // Usuario para la Computadora B
-};
+const sqlite3 = require('sqlite3').verbose();
+const bcrypt = require('bcryptjs');
+
+// Configuración de la base de datos SQLite
+const db = new sqlite3.Database('./chat.db', (err) => {
+    if (err) {
+        console.error('Error abriendo la base de datos:', err.message);
+    } else {
+        console.log('Conectado a la base de datos SQLite.');
+        // Crear tabla de usuarios si no existe
+        db.run(`CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`);
+    }
+});
 
 // Almacenamiento de sesiones activas por socket.id
 let activeUsers = {};
@@ -26,17 +40,58 @@ app.use(express.static(path.join(__dirname, 'public')));
 // configurar express para parsear JSON
 app.use(express.json());
 
+// Ruta para registrar nuevos usuarios
+app.post('/api/register', async (req, res) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+        return res.status(400).json({ success: false, message: "Usuario y contraseña requeridos" });
+    }
+
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        
+        db.run("INSERT INTO users (username, password) VALUES (?, ?)", 
+            [username, hashedPassword], 
+            function(err) {
+                if (err) {
+                    if (err.message.includes('UNIQUE constraint failed')) {
+                        return res.status(400).json({ success: false, message: "El usuario ya existe" });
+                    }
+                    return res.status(500).json({ success: false, message: "Error del servidor" });
+                }
+                res.json({ success: true, message: "Usuario registrado exitosamente" });
+            }
+        );
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Error del servidor" });
+    }
+});
+
 // Ruta para manejar el login API REST
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
 
-    // Verificar credenciales
-    if (USERS[username] && USERS[username] === password) {
-        // En un proyecto real, se enviaría un Token JWT aquí
-        return res.json({ success: true, username: username, message: "Login exitoso" });
-    } else {
-        return res.status(401).json({ success: false, message: "Credenciales inválidas" });
-    }
+    db.get("SELECT * FROM users WHERE username = ?", [username], async (err, row) => {
+        if (err) {
+            return res.status(500).json({ success: false, message: "Error del servidor" });
+        }
+        
+        if (!row) {
+            return res.status(401).json({ success: false, message: "Credenciales inválidas" });
+        }
+
+        const validPassword = await bcrypt.compare(password, row.password);
+        if (validPassword) {
+            return res.json({ 
+                success: true, 
+                username: username, 
+                message: "Login exitoso" 
+            });
+        } else {
+            return res.status(401).json({ success: false, message: "Credenciales inválidas" });
+        }
+    });
 });
 
 // Logíca de chat (Socket.IO)

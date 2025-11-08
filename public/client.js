@@ -11,6 +11,70 @@ document.addEventListener('DOMContentLoaded', () => {
     let username = '';
     let socket; // La variable del socket se inicializará después del login
 
+    // Después de las declaraciones de variables, agrega:
+const registerForm = document.getElementById('register-form');
+const registerMessage = document.getElementById('register-message');
+const showRegisterLink = document.getElementById('show-register');
+const showLoginLink = document.getElementById('show-login');
+
+// Alternar entre login y registro
+showRegisterLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    loginForm.style.display = 'none';
+    registerForm.style.display = 'block';
+    loginMessage.textContent = '';
+});
+
+showLoginLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    registerForm.style.display = 'none';
+    loginForm.style.display = 'block';
+    registerMessage.textContent = '';
+});
+
+// Manejo del Registro
+registerForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const inputUser = document.getElementById('reg-username').value;
+    const inputPass = document.getElementById('reg-password').value;
+
+    registerMessage.textContent = 'Registrando...';
+
+    try {
+        const response = await fetch('/api/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username: inputUser, password: inputPass })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            registerMessage.textContent = '¡Registro exitoso! Ahora puedes iniciar sesión.';
+            registerMessage.style.color = 'green';
+            
+            // Limpiar formulario y mostrar login
+            document.getElementById('reg-username').value = '';
+            document.getElementById('reg-password').value = '';
+            setTimeout(() => {
+                registerForm.style.display = 'none';
+                loginForm.style.display = 'block';
+                registerMessage.textContent = '';
+            }, 2000);
+        } else {
+            registerMessage.textContent = data.message || 'Error en el registro';
+            registerMessage.style.color = 'red';
+        }
+
+    } catch (error) {
+        console.error('Error durante el registro:', error);
+        registerMessage.textContent = 'Error al conectar con el servidor';
+        registerMessage.style.color = 'red';
+    }
+});
+
     // Función auxiliar para añadir mensajes al contenedor
     function addMessage(msg, type = 'user') {
         const item = document.createElement('div');

@@ -19,6 +19,19 @@
         </form>
     </div>
 
+<!-- Botón para mostrar registro -->
+<p style="text-align: center;">¿No tienes cuenta? <a href="#" id="show-register">Regístrate aquí</a></p>
+
+<!-- Formulario de Registro (oculto inicialmente) -->
+<form id="register-form" style="display: none; text-align: center; max-width: 300px; margin: 0 auto;">
+    <h2>Registro de nuevo usuario</h2>
+    <input id="reg-username" type="text" placeholder="Usuario" required style="display: block; width: 100%; margin: 10px 0; padding: 8px; box-sizing: border-box;">
+    <input id="reg-password" type="password" placeholder="Contraseña" required style="display: block; width: 100%; margin: 10px 0; padding: 8px; box-sizing: border-box;">
+    <button type="submit" style="width: 100%; padding: 10px; margin: 10px 0;">Registrarse</button>
+    <p id="register-message" class="error"></p>
+    <p>¿Ya tienes cuenta? <a href="#" id="show-login">Inicia sesión aquí</a></p>
+</form>
+
     <div id="chat-area" style="display: none;">
         <h1 id="welcome-header">Bienvenido, [Usuario]</h1>
         <div id="messages">
