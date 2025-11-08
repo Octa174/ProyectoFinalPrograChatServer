@@ -116,6 +116,7 @@ registerForm.addEventListener('submit', async (e) => {
                 // Ocultar login y mostrar chat
                 loginArea.style.display = 'none';
                 chatArea.style.display = 'flex';
+                document.getElementById('show-register').parentElement.style.display = 'none';
                 welcomeHeader.textContent = `Bienvenido, ${username}`;
                 
                 // Iniciar la conexión de Socket.IO
