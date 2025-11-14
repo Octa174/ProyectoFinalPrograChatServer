@@ -75,20 +75,32 @@ registerForm.addEventListener('submit', async (e) => {
     }
 });
 
-    // Función auxiliar para añadir mensajes al contenedor
-    function addMessage(msg, type = 'user') {
-        const item = document.createElement('div');
+  // Función auxiliar para añadir mensajes al contenedor
+function addMessage(msg, type = 'user') {
+    const item = document.createElement('div');
+
+    if (type === 'system') {
+        // Mensaje del servidor (por ejemplo: "Usuario conectado")
+        item.classList.add('system-msg');
+        item.textContent = msg;
+    } else {
         item.classList.add('msg');
-        if (type === 'system') {
-            item.classList.add('system-msg');
-            item.textContent = msg;
+
+        // Si el mensaje lo enviaste tú, va a la derecha
+        if (msg.username === username) {
+            item.classList.add('me');
         } else {
-            item.innerHTML = `<strong>${msg.username}</strong> <span class="timestamp">(${msg.timestamp}):</span> ${msg.text}`;
+            // Si lo envió otro, va a la izquierda
+            item.classList.add('other');
         }
-        messagesContainer.appendChild(item);
-        // Desplazar hacia abajo
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        item.innerHTML = `<strong>${msg.username}</strong><br>${msg.text}`;
     }
+
+    messagesContainer.appendChild(item);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
 
     // --- Manejo del Login ---
     loginForm.addEventListener('submit', async (e) => {

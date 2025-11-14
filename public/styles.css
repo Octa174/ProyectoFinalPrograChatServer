@@ -1,83 +1,217 @@
-body { margin: 0; padding: 0; font-family: sans-serif; background: #f4f4f4; }
+body {
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+    background-image: url("./img/colores.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
 
-#login-area {
-    width: 300px;
-    margin: 100px auto;
-    padding: 20px;
-    background: white;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    border-radius: 8px;
-    text-align: center;
+    /* ESTA PARTE CENTRA TODO */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
 
+/* Fade suave de entrada */
+#login-area {
+  width: 300px;
+  margin: 100px auto;
+  padding: 25px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 14px;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  animation: fadeIn 0.9s ease-out;
+}
+
+/* Inputs y botón con interacciones */
 #login-form input, #login-form button {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    box-sizing: border-box;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  transition: 0.3s;
+}
+
+#login-form input:focus {
+  box-shadow: 0 0 10px rgba(255,255,255,0.7);
+}
+
+#login-form button {
+  background: #ffffffaa;
+  cursor: pointer;
+}
+
+#login-form button:hover {
+  background: white;
+  transform: scale(1.05);
 }
 
 /* --- Estilos del Chat --- */
 #chat-area {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    max-width: 800px;
-    margin: 0 auto;
-    background: white;
-    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  height: 600px;
+  width: 80%;
+  max-width: 800px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(12px);
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.25);
+  box-shadow: 0 0 25px rgba(0,0,0,0.35);
+  animation: fadeIn 0.7s ease-out;
+  overflow: hidden;
 }
 
 #welcome-header {
-    background: #3498db;
-    color: white;
-    padding: 10px;
-    margin: 0;
-    text-align: center;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  color: white;
+  padding: 12px;
+  margin: 0;
+  text-align: center;
+  font-size: 1.3em;
 }
 
 #messages {
-    flex-grow: 1;
-    list-style-type: none;
-    margin: 0;
-    padding: 20px;
-    overflow-y: auto;
-    border-bottom: 1px solid #ccc;
+  flex-grow: 1;
+  margin: 0;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-#messages .msg {
-    padding: 5px 0;
-    border-bottom: 1px dotted #eee;
+/* BURBUJAS */
+.msg {
+  max-width: 75%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 0.95em;
+  animation: fadeIn 0.3s ease;
 }
 
-#messages .system-msg {
-    text-align: center;
-    font-size: 0.8em;
-    color: #888;
-    margin: 5px 0;
+/* Mensaje de otros */
+.msg.other {
+  align-self: flex-start;
+  background: rgba(255,255,255,0.8);
 }
 
+/* Mensaje tuyo */
+.msg.me {
+  align-self: flex-end;
+  background: #4f8cff;
+  color: white;
+}
+
+/* Mensajes del sistema */
+.system-msg {
+  width: 100%;
+  text-align: center;
+  color: #ffffffc0;
+  font-size: 0.8em;
+}
+
+/* Caja de escribir */
 #chat-form {
-    padding: 10px;
-    display: flex;
+  padding: 10px;
+  display: flex;
+  background: rgba(255,255,255,0.25);
+  backdrop-filter: blur(6px);
 }
 
 #m {
-    flex-grow: 1;
-    border: 1px solid #ccc;
-    padding: 10px;
-    border-radius: 5px 0 0 5px;
+  flex-grow: 1;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  outline: none;
 }
 
 #chat-form button {
-    background: #2ecc71;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    cursor: pointer;
-    border-radius: 0 5px 5px 0;
+  margin-left: 8px;
+  background: #4f8cff;
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#chat-form button:hover {
+  background: #3a6edb;
 }
 
 .error {
-    color: red;
+  color: red;
+}
+
+.center-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  flex-direction: column;
+}
+
+.glass-card {
+  width: 300px;
+  padding: 25px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.28);
+  text-align: center;
+  box-shadow: 0 0 25px rgba(0,0,0,0.4);
+  animation: fadeIn 0.9s ease-out;
+}
+
+.switch-text {
+  margin-top: 10px;
+  color: #ffffffdd;
+  font-size: 0.9em;
+}
+
+.switch-text a {
+  color: #fff;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+#register-form input, #register-form button {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  transition: 0.3s;
+}
+
+#register-form input:focus {
+  box-shadow: 0 0 10px rgba(255,255,255,0.7);
+}
+
+#register-form button {
+  background: #ffffffaa;
+  cursor: pointer;
+}
+
+#register-form button:hover {
+  background: white;
+  transform: scale(1.05);
+}
+
+/* Animación */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-25px); }
+  to { opacity: 1; transform: translateY(0); }
 }

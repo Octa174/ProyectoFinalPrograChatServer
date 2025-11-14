@@ -78,7 +78,7 @@ app.post('/api/login', (req, res) => {
         }
         
         if (!row) {
-            return res.status(401).json({ success: false, message: "Credenciales inválidas" });
+            return res.status(401).json({ success: false, message: "Credenciales inválidas. Registrate para obtener una cuenta." });
         }
 
         const validPassword = await bcrypt.compare(password, row.password);
