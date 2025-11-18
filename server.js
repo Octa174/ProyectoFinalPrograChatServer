@@ -31,6 +31,7 @@ const db = new sqlite3.Database('./chat.db', (err) => {
 
 // Almacenamiento de sesiones activas por socket.id
 let activeUsers = {};
+let userSessions = {}; // Para controlar múltiples sesiones
 
 //--------------------------------------------------------------------------------------------
 
@@ -72,6 +73,14 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
 
+    // Verificar si el usuario ya está conectado
+    if (userSessions[username]) {
+        return res.status(401).json({ 
+            success: false, 
+            message: "Este usuario ya tiene una sesión activa. No puedes iniciar sesión múltiples veces." 
+        });
+    }
+
     db.get("SELECT * FROM users WHERE username = ?", [username], async (err, row) => {
         if (err) {
             return res.status(500).json({ success: false, message: "Error del servidor" });
@@ -83,6 +92,8 @@ app.post('/api/login', (req, res) => {
 
         const validPassword = await bcrypt.compare(password, row.password);
         if (validPassword) {
+            // Marcar usuario como conectado
+            userSessions[username] = true;
             return res.json({ 
                 success: true, 
                 username: username, 
@@ -100,6 +111,13 @@ io.on('connection', (socket) => {
 
     // Evento para registrar el usuario al iniciar el chat (después del login)
     socket.on('set username', (username) => {
+        // Verificar si el usuario ya está activo (doble verificación)
+        if (activeUsers[username]) {
+            socket.emit('login error', 'Este usuario ya tiene una sesión activa en otra pestaña/navegador.');
+            socket.disconnect();
+            return;
+        }
+
         // Asocia el ID del socket con el nombre de usuario
         socket.username = username;
         activeUsers[username] = socket.id;
@@ -107,6 +125,9 @@ io.on('connection', (socket) => {
         // Avisa a todos quién se unió
         io.emit('user joined', `${username} se ha unido al chat.`);
         console.log(`Usuario registrado: ${username}`);
+        
+        // Enviar lista actualizada de usuarios a todos
+        io.emit('users list', Object.keys(activeUsers));
     });
 
     // Evento para recibir mensajes
@@ -122,14 +143,103 @@ io.on('connection', (socket) => {
         });
     });
 
+    // Evento para mensaje privado
+    socket.on('private message', (data) => {
+        const { targetUser, message } = data;
+        const sender = socket.username;
+        
+        console.log(`Mensaje privado de ${sender} a ${targetUser}: ${message}`);
+        
+        if (activeUsers[targetUser]) {
+            // Enviar al usuario destino
+            socket.to(activeUsers[targetUser]).emit('private message', {
+                from: sender,
+                message: message,
+                timestamp: new Date().toLocaleTimeString(),
+                isOwn: false
+            });
+            
+            // También enviar al remitente (para ver su propio mensaje)
+            socket.emit('private message', {
+                from: sender,
+                message: message,
+                timestamp: new Date().toLocaleTimeString(),
+                isOwn: true
+            });
+        }
+    });
+
+    // Evento cuando un usuario está escribiendo
+    socket.on('typing start', (targetUser = null) => {
+        const sender = socket.username;
+        
+        if (targetUser) {
+            // Para chat privado
+            if (activeUsers[targetUser]) {
+                socket.to(activeUsers[targetUser]).emit('user typing', {
+                    username: sender,
+                    isTyping: true,
+                    targetUser: targetUser
+                });
+            }
+        } else {
+            // Para chat global - avisa a todos excepto al que escribe
+            socket.broadcast.emit('user typing', {
+                username: sender,
+                isTyping: true,
+                targetUser: null
+            });
+        }
+    });
+
+    // Evento cuando un usuario deja de escribir
+    socket.on('typing stop', (targetUser = null) => {
+        const sender = socket.username;
+        
+        if (targetUser) {
+            // Para chat privado
+            if (activeUsers[targetUser]) {
+                socket.to(activeUsers[targetUser]).emit('user typing', {
+                    username: sender,
+                    isTyping: false,
+                    targetUser: targetUser
+                });
+            }
+        } else {
+            // Para chat global
+            socket.broadcast.emit('user typing', {
+                username: sender,
+                isTyping: false,
+                targetUser: null
+            });
+        }
+    });
+
+    // Evento para obtener lista de usuarios conectados
+    socket.on('get users', () => {
+        const users = Object.keys(activeUsers);
+        socket.emit('users list', users);
+    });
+
     // Evento cuando un cliente se desconecta
     socket.on('disconnect', () => {
         if (socket.username) {
+            // Liberar la sesión del usuario
             delete activeUsers[socket.username];
+            delete userSessions[socket.username];
+            
             io.emit('user left', `${socket.username} ha abandonado el chat.`);
+            io.emit('users list', Object.keys(activeUsers));
             console.log(`Usuario desconectado: ${socket.username}`);
         }
         console.log('Cliente desconectado:', socket.id);
+    });
+
+    // Manejar errores de autenticación
+    socket.on('force logout', (username) => {
+        if (userSessions[username]) {
+            delete userSessions[username];
+        }
     });
 });
 
@@ -139,6 +249,3 @@ server.listen(PORT, () => {
     console.log(`Servidor de chat corriendo en http://localhost:${PORT}`);
     console.log("¡Recuerda que esta IP deberá ser la pública de AWS/Azure!");
 });
-
-
-

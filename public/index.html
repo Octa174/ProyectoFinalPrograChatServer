@@ -5,6 +5,152 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Cliente-Servidor</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Estilos adicionales para las nuevas funcionalidades */
+        #chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        #toggle-users {
+            padding: 8px 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #chat-container {
+            display: flex;
+            gap: 20px;
+        }
+
+        #users-panel {
+            width: 250px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        #users-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 5px;
+        }
+
+        .chat-private-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        #messages-area {
+            flex: 1;
+            position: relative;
+        }
+
+        #chat-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+        }
+
+        .private-msg {
+            border-left: 3px solid #ff6b6b !important;
+        }
+
+        #back-to-global {
+            padding: 8px 15px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        #back-to-global:hover {
+            background: #545b62;
+        }
+
+        #typing-indicator {
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            margin: 5px 0;
+            font-style: italic;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        #typing-text {
+            font-size: 0.9em;
+        }
+
+        .unread-badge {
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+
+        .chat-info-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 10px;
+            height: 10px;
+            background: #dc3545;
+            border-radius: 50%;
+        }
+
+        /* Estilo para el banner de advertencia */
+        .warning-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #fff3cd;
+            color: #856404;
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #ffeaa7;
+            font-size: 14px;
+            z-index: 1000;
+        }
+    </style>
 </head>
 <body>
 
@@ -29,54 +175,79 @@
         </div>
 
         <!-- REGISTRO -->
-<div id="register-area" class="glass-card" style="display: none;">
-    <form id="register-form">
-        <h2>📝 Registro</h2>
-        <p>Crea un usuario nuevo</p>
+        <div id="register-area" class="glass-card" style="display: none;">
+            <form id="register-form">
+                <h2>📝 Registro</h2>
+                <p>Crea un usuario nuevo</p>
 
-        <input type="text" id="reg-username" placeholder="Usuario" required>
-        <input type="password" id="reg-password" placeholder="Contraseña" required>
+                <input type="text" id="reg-username" placeholder="Usuario" required>
+                <input type="password" id="reg-password" placeholder="Contraseña" required>
 
-        <button type="submit">Registrarse</button>
+                <button type="submit">Registrarse</button>
 
-        <p class="switch-text">¿Ya tienes cuenta?
-            <a href="#" id="show-login">Inicia sesión aquí</a>
-        </p>
+                <p class="switch-text">¿Ya tienes cuenta?
+                    <a href="#" id="show-login">Inicia sesión aquí</a>
+                </p>
 
-        <p id="register-message"></p>
-    </form>
-</div>
+                <p id="register-message"></p>
+            </form>
+        </div>
 
     </div>
 
     <!-- ÁREA DEL CHAT -->
     <div id="chat-area" style="display: none;">
-        <h1 id="welcome-header">Bienvenido, [Usuario]</h1>
-
-        <div id="messages"></div>
-
-        <form id="chat-form">
-            <input id="m" autocomplete="off" placeholder="Escribe tu mensaje..." />
-            <button>Enviar</button>
-        </form>
+        <div id="chat-header">
+            <h1 id="welcome-header">Bienvenido, [Usuario]</h1>
+            <button id="toggle-users">👥 Usuarios Conectados</button>
+        </div>
+        
+        <div id="chat-container">
+            <!-- Panel de usuarios conectados -->
+            <div id="users-panel" style="display: none;">
+                <h3>Usuarios Conectados</h3>
+                <div id="users-list"></div>
+                <button id="back-to-global" style="display: block; width: 100%; margin-top: 10px;">← Volver al Chat Global</button>
+            </div>
+            
+            <!-- Área de mensajes -->
+            <div id="messages-area">
+                <div id="chat-info">
+                    <div class="chat-info-left">
+                        <span id="current-chat">Chat Global</span>
+                        <button id="back-to-global" style="display: none;">← Chat Global</button>
+                    </div>
+                </div>
+                
+                <div id="messages"></div>
+                
+                <div id="typing-indicator" style="display: none;">
+                    <em id="typing-text"></em>
+                </div>
+                
+                <form id="chat-form">
+                    <input id="m" autocomplete="off" placeholder="Escribe tu mensaje..." />
+                    <button>Enviar</button>
+                </form>
+            </div>
+        </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="client.js"></script>
 
     <script>
-document.getElementById("show-register").addEventListener("click", function(e) {
-    e.preventDefault();
-    document.getElementById("login-area").style.display = "none";
-    document.getElementById("register-area").style.display = "block";
-});
+        document.getElementById("show-register").addEventListener("click", function(e) {
+            e.preventDefault();
+            document.getElementById("login-area").style.display = "none";
+            document.getElementById("register-area").style.display = "block";
+        });
 
-document.getElementById("show-login").addEventListener("click", function(e) {
-    e.preventDefault();
-    document.getElementById("register-area").style.display = "none";
-    document.getElementById("login-area").style.display = "block";
-});
-
-</script>
+        document.getElementById("show-login").addEventListener("click", function(e) {
+            e.preventDefault();
+            document.getElementById("register-area").style.display = "none";
+            document.getElementById("login-area").style.display = "block";
+        });
+    </script>
 </body>
 </html>
